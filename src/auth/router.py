@@ -1,5 +1,7 @@
 from fastapi import HTTPException, Request, status, Depends
 from fastapi.routing import APIRouter
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 
 from sqlalchemy import select, update
 
@@ -13,16 +15,29 @@ from src.auth.castom_fau.fastapi_users import FastAPIUsers
 from requests import Session
 
 
+templates = Jinja2Templates(directory='src/templates')
+
 fastapi_users = FastAPIUsers[User, int](
     get_user_manager,
     [auth_backend],
 )
+
 
 router_auth = APIRouter(prefix="/auth/jwt", tags=["auth"])
 router_auth.include_router(fastapi_users.get_auth_router(auth_backend))
 
 router_register = APIRouter(prefix="/auth", tags=["auth"])
 router_register.include_router(fastapi_users.get_register_router(UserRead, UserCreate))
+
+
+@router_auth.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+
+@router_register.get("/register", response_class=HTMLResponse)
+async def register_page(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request})
 
 
 @router_auth.get("/verification")
@@ -48,3 +63,8 @@ async def verification(request: Request, token: str, session: Session = Depends(
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                         detail="Invalid token or expired token"
                         )
+
+@router_register.get("/registration-success", response_class=HTMLResponse)
+async def registration_success(request: Request):
+    return templates.TemplateResponse("registration_success.html", {"request": request})
+

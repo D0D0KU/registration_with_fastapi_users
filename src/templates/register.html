@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" type="text/css" href="/static/register.css">
+</head>
+<body>
+    <form id="registrationForm">
+        <h1>Register</h1>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+        <button type="button" onclick="registerUser()">Register</button>
+    </form>
+
+    <script>
+        async function registerUser() {
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const data = {
+                "email": email,
+                "password": password,
+                "is_active": true,
+                "is_superuser": false,
+                "is_verified": false,
+                "username": username,
+                "role_id": 0
+            };
+
+            try {
+                const response = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                // Обработка успешного ответа, например, перенаправление на страницу успешной регистрации
+                window.location.href = '/auth/registration-success';
+
+            } catch (error) {
+                console.error('Error during registration:', error);
+                // Обработка ошибки, например, вывод сообщения пользователю
+                alert('Произошла ошибка при регистрации. Пожалуйста, попробуйте еще раз.');
+            }
+        }
+    </script>
+</body>
+</html>
