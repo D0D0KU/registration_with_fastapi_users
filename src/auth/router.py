@@ -40,7 +40,7 @@ async def register_page(request: Request):
     return templates.TemplateResponse("auth/register.html", {"request": request})
 
 
-@router_auth.get("/verification")
+@router_auth.get("/verification", response_class=HTMLResponse)
 async def verification(request: Request, token: str, session: Session = Depends(get_async_session)):
 
     payload = very_token(token=token)
@@ -58,11 +58,11 @@ async def verification(request: Request, token: str, session: Session = Depends(
             await conn.execute(update(User).where(User.id == payload['id']).values(is_verified=True))
             await conn.commit()
 
-        return 'User verified!'
+        # Render HTML template with email_verified variable set to True
+        return templates.TemplateResponse("dashboard.html", {"request": request, "email_verified": True})
 
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Invalid token or expired token"
-                        )
+                        detail="Invalid token or expired token")
 
 
 @router_register.get("/registration-success", response_class=HTMLResponse)
