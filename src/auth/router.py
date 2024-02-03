@@ -32,12 +32,12 @@ router_register.include_router(fastapi_users.get_register_router(UserRead, UserC
 
 @router_auth.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse("auth/login.html", {"request": request})
 
 
 @router_register.get("/register", response_class=HTMLResponse)
 async def register_page(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request})
+    return templates.TemplateResponse("auth/register.html", {"request": request})
 
 
 @router_auth.get("/verification")
@@ -67,7 +67,7 @@ async def verification(request: Request, token: str, session: Session = Depends(
 
 @router_register.get("/registration-success", response_class=HTMLResponse)
 async def registration_success(request: Request):
-    return templates.TemplateResponse("registration_success.html", {"request": request})
+    return templates.TemplateResponse("auth/registration_success.html", {"request": request})
 
 
 @router_auth.get("/dashboard", response_class=HTMLResponse)
