@@ -64,7 +64,12 @@ async def verification(request: Request, token: str, session: Session = Depends(
                         detail="Invalid token or expired token"
                         )
 
+
 @router_register.get("/registration-success", response_class=HTMLResponse)
 async def registration_success(request: Request):
     return templates.TemplateResponse("registration_success.html", {"request": request})
 
+
+@router_auth.get("/dashboard", response_class=HTMLResponse)
+async def registration_success(request: Request):
+    return templates.TemplateResponse("dashboard.html", {"request": request})
