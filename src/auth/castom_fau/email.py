@@ -3,6 +3,8 @@ from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from pydantic import EmailStr, BaseModel
 from typing import List
 
+from fastapi.templating import Jinja2Templates
+
 from src.auth.config import SECRET, MAIL_FROM, MAIL_PASSWORD
 import jwt
 
@@ -10,6 +12,7 @@ import jwt
 class EmailSchema(BaseModel):
     email: List[EmailStr]
 
+templates = Jinja2Templates(directory="src/templates")
 
 conf = ConnectionConfig(
     MAIL_USERNAME = MAIL_FROM,
@@ -26,22 +29,22 @@ conf = ConnectionConfig(
 
 
 async def simple_send(email: EmailSchema, id: int, username: str) -> JSONResponse:
-
     token_data = {
         "id": id,
         "username": username
     }
-
     token = jwt.encode(token_data, SECRET)
 
-    html = f"""<p>Hi this test mail, thanks for using Fastapi-mail</p>
-    <a href="http://localhost:8000/auth/jwt/verification/?token={token}">Verify your email</a>
-    """
+    # Insert the token into the template context
+    context = {"request": None, "token": token}
+
+    # Use TemplateResponse to insert a token into a template
+    html_content = templates.TemplateResponse("auth/verification.html", context).body
 
     message = MessageSchema(
         subject="Verification",
         recipients=email.dict().get("email"),
-        body=html,
+        body=html_content,
         subtype=MessageType.html)
     
     fm = FastMail(conf)
